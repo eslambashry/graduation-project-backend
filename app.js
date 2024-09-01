@@ -1,11 +1,11 @@
 import express from "express"
 import { connectionDB } from "./DB/connection.js"
 import userRoutes from "./src/modules/user/user.routes.js"
-import { config } from 'dotenv'
+import cors from 'cors'
 
-config()
 const app = express()
-const port = 3002
+const port = 5000 
+app.use(cors())
 
 app.use(express.json())
 
@@ -15,4 +15,4 @@ app.use(userRoutes)
 
 
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Example app listening on port ${port} 🧬`))
