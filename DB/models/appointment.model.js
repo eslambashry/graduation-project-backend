@@ -5,17 +5,17 @@ const appointmentSchema = new Schema({
     appointID: String,
     patientID:{
         type: Schema.Types.ObjectId,
-        "ref":"patient",
+        ref:"patient",
         require:true
     }, 
     doctorID: {
         type: Schema.Types.ObjectId,
-        "ref":"doctor",
+        ref:"doctor",
         require:true
     }, 
     departID:{ 
         type: Schema.Types.ObjectId,
-        "ref":"department",
+        ref:"department",
         require:true
     }, 
     date: Date,
