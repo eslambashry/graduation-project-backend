@@ -55,7 +55,7 @@ export const register = async(req,res,next) => {
     const saveUser = await user.save()
     res.status(201).json({message:'done', saveUser})
 }
-// ! ->       EMAIL CONFIRM HAS AN ERROR      <-
+// ! ->       EMAIL CONFIRM HAS AN ERROR      <- 
 // export const confirmEmail = async(req,res,next) => {
 //     const {token} = req.params
 
