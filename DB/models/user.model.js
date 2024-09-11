@@ -23,8 +23,8 @@ const userSchema = new Schema({
     },
     role:{
         type:String,
-        default:'user',
-        enum:['user','admin']
+        default:'doctor',
+        enum:['admin','doctor']
     },
     phoneNumber:{
         type:String,
@@ -36,11 +36,6 @@ const userSchema = new Schema({
     profilePicture:{
         secure_url:String,
         public_id:String,
-    },
-    status:{
-        type:String,
-        default:'offline',
-        enum:['offline','online'],
     },
     gender:{
         type:String,

@@ -27,7 +27,7 @@ export const register = async(req,res,next) => {
     signature: "stitch",
     expiresIn: '1h',
  })
-    const confirmationLink = `${req.protocol}://${req.headers.host}/auth/confirm/${token}`
+    const confirmationLink = `${req.protocol}://${req.headers.host}/confirm/${token}`
     const isEmailSent = sendEmailService({
         to:email,
         subject:'Confirmation Email',
@@ -55,24 +55,23 @@ export const register = async(req,res,next) => {
     const saveUser = await user.save()
     res.status(201).json({message:'done', saveUser})
 }
-// ! ->       EMAIL CONFIRM HAS AN ERROR      <- 
-// export const confirmEmail = async(req,res,next) => {
-//     const {token} = req.params
+export const confirmEmail = async(req,res,next) => {
+    const {token} = req.params
 
-//     const decode = verifyToken({
-//         token,
-//         signature: "confirmToken",
-//     })
-//     const user = await userModel.findOneAndUpdate(
-//         {email: decode?.email, isConfirmed:false},
-//         {isConfirmed: true},
-//         {new:true},
-//         )
-//         if(!user){
-//             return res.status(400).json({message:'already confirmed'})
-//         }
-//             return res.status(200).json({message:'confirmed done, now log in'})
-// }
+    const decode = verifyToken({
+        token,
+        signature: "stitch",
+    })
+    const user = await userModel.findOneAndUpdate(
+        {email: decode?.email, isConfirmed:false},
+        {isConfirmed: true},
+        {new:true},
+        )
+        if(!user){
+            return res.status(400).json({message:'already confirmed'})
+        }
+            return res.status(200).json({message:'confirmed done, now log in'})
+}
 
 import pkg from 'bcrypt'
 export const login = async(req,res,next) => {
@@ -93,21 +92,10 @@ export const login = async(req,res,next) => {
         {
           email,
           _id: userExsist._id,
-          role: userExsist.role,
+          role: userExsist.role, // After Login Make the Site Know what Is His Role (Doctor , Patient) 
         },
         'stitch',
         { expiresIn: '1h' }
       );
-
-     const userUpdated = await userModel.findOneAndUpdate(
-        
-        {email},
-        
-        {
-            token,
-            status: 'online'
-        },
-        {new: true},
-     )
-     res.status(200).json({message: 'Login Success', userUpdated})
+     res.status(200).json({message: 'Login Success', userExsist})
 }
