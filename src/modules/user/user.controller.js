@@ -4,6 +4,8 @@ import { emailTemplate } from "../../units/emailTemplate.js"
 import {generateToken, verifyToken} from "../../units/tokenFunctions.js"
 import jwt from 'jsonwebtoken';
 
+
+// ^ =============================== Register ============================================
 export const register = async(req,res,next) => {
     const { 
         userName,
@@ -55,6 +57,8 @@ export const register = async(req,res,next) => {
     const saveUser = await user.save()
     res.status(201).json({message:'done', saveUser})
 }
+
+// ^ =============================== Confirm Email ============================================
 export const confirmEmail = async(req,res,next) => {
     const {token} = req.params
 
@@ -73,6 +77,7 @@ export const confirmEmail = async(req,res,next) => {
             return res.status(200).json({message:'confirmed done, now log in'})
 }
 
+// ^ =============================== Login ============================================
 import pkg from 'bcrypt'
 export const login = async(req,res,next) => {
     const {email,password} = req.body
@@ -94,8 +99,84 @@ export const login = async(req,res,next) => {
           _id: userExsist._id,
           role: userExsist.role, // After Login Make the Site Know what Is His Role (Doctor , Patient) 
         },
-        'stitch',
+        'STITCH',
         { expiresIn: '1h' }
       );
-     res.status(200).json({message: 'Login Success', userExsist})
+
+     const userUpdated = await userModel.findOneAndUpdate(
+        
+        {email},
+        
+        {
+            token,
+            status: 'online'
+        },
+        {new: true},
+     )
+     res.status(200).json({message: 'Login Success', userUpdated})}
+
+
+// ^ =============================== Forget Password ============================================
+import { nanoid } from "nanoid"
+export const forgetPassword = async(req,res,next) => {
+    const {email} = req.body
+
+    const isExist = await userModel.findOne({email})
+    if(!isExist){
+        return res.status(400).json({message: "Email not found"})
+    }
+
+    const code = nanoid()
+    const hashcode = pkg.hashSync(code, 8) // ! process.env.SALT_ROUNDS
+    const token = generateToken({
+        payload:{
+            email,
+            sendCode:hashcode,
+        },
+        signature: 'STITCH', // ! process.env.RESET_TOKEN
+        expiresIn: '1h',
+    })
+    const resetPasswordLink = `${req.protocol}://${req.headers.host}/reset/${token}`
+    const isEmailSent = sendEmailService({
+        to:email,
+        subject: "Reset Password",
+        message: emailTemplate({
+            link:resetPasswordLink,
+            linkData:"Click Here Reset Password",
+            subject: "Reset Password",
+        }),
+    })
+    if(!isEmailSent){
+        return res.status(400).json({message:"Email not found"})
+    }
+
+    const userupdete = await userModel.findOneAndUpdate(
+        {email},
+        {forgetCode:hashcode},
+        {new: true},
+    )
+    return res.status(200).json({message:"password changed",userupdete})
+}
+
+
+// ^ =============================== Reset Password ============================================
+export const resetPassword = async(req,res,next) => {
+    const {token} = req.params
+    const decoded = verifyToken({token, signature: 'STITCH'}) // ! process.env.RESET_TOKEN
+    const user = await userModel.findOne({
+        email: decoded?.email,
+        fotgetCode: decoded?.sentCode
+    })
+
+    if(!user){
+        return res.status(400).json({message: "you are alreade reset it , try to login"})
+    }
+
+    const {newPassword} = req.body
+
+    user.password = newPassword,
+    user.forgetCode = null
+
+    const updatedUser = await user.save()
+    res.status(200).json({message: "Done",updatedUser})
 }
