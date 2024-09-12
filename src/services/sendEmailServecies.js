@@ -20,7 +20,7 @@ export async function sendEmailService({
   })
 
   const emailInfo = await transporter.sendMail({
-    from: '"3amo samy 👻" <eslamhussin600@gmail.com>',
+    from: '"3amo keta 👻" <eslamhussin600@gmail.com>',
     to: to ? to : '',
     subject: subject ? subject : 'Hello',
     html: message ? message : '',
