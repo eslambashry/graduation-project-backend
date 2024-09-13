@@ -6,6 +6,7 @@ import userRoutes from './src/modules/user/user.routes.js';
 import cors from 'cors';
 import doctorRoutes from './src/modules/doctors/doctor.routes.js';
 import appointmentRoutes from './src/modules/appointments/appointment.routes.js';
+import departmentRoutes from './src/modules/departments/department.routes.js';
 
 const app = express();
 const port = 5000;
@@ -20,6 +21,7 @@ connectionDB;
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/departments', departmentRoutes); 
 
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
