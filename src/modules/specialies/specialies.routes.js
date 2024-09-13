@@ -7,7 +7,7 @@ const specialiesRoutes = Router()
 
 specialiesRoutes.post('/create/specialies',createSpecialies)
 specialiesRoutes.get('/getAll/specialies',getAllSpecialies)
-specialiesRoutes.get('/getSingle/specialies/:id',getSingleSpecialies)
+specialiesRoutes.get('/getSingleSpecialies/:id',getSingleSpecialies)
 
 
  

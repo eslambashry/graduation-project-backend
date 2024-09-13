@@ -23,9 +23,9 @@ export const getAllSpecialies = async(req,res,next) => {
 export const getSingleSpecialies = async (req,res,next) => {
     const {id} = req.params
 
-    const specialies = await specialiesModel.findById(id)
+    const speciality = await specialiesModel.findById(id)
 
-    if(!specialies) res.status(404).json({message:"Didn't Find specialies"})
+    if(!speciality) res.status(404).json({message:"Didn't Find speciality"})
 
-        res.status(201).json({message:"Done",specialies})
+        res.status(200).json({message:"Done",speciality})
 }
