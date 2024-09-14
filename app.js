@@ -42,6 +42,6 @@ io.on("connection", (socket) => {
     console.log("Client disconnected:", socket.id);
   });
 });
-export { io };
+export { io, port };
 
 server.listen(port, () => console.log(`Server running on port ${port} 🧬`));
