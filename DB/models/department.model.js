@@ -11,7 +11,16 @@ const departmentSchema = new mongoose.Schema({
     description: {
       type: String,
       trim: true
-    }
+    },
+    Image: {
+      secure_url:{
+          type: String,
+          required: true,
+      },
+      public_id: {
+          type: String,
+          required: true,
+      }},
   }, { timestamps: true, versionKey: false });
 
 export const departmentModel = mongoose.model('Department', departmentSchema);

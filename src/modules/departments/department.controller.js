@@ -1,12 +1,40 @@
 import { departmentModel } from "../../../DB/models/department.model.js";
+import cloudinary from "../../utilities/cloudinaryConfig.js";
+import fs from 'fs';
 
 // Create a new department
 export const createDepartment = async (req, res) => {
   try {
-    const department = new departmentModel(req.body);
+    // Handle file upload via multer
+    const file = req.file;
+    
+    let imageDetails = {};
+    if (file) {
+      // Upload image to Cloudinary
+     const { secure_url, public_id } = await cloudinary.uploader.upload(
+        req.file.path, {
+        folder: `Hospital/Doctors/`
+    })
+      // Save image details
+      
+      // Clean up the file from local storage
+      fs.unlinkSync(file.path);
+    }
+
+    // Create new department with or without image details
+    const department = new departmentModel({
+      ...req.body,
+  Image: {
+            secure_url, public_id
+        },    });
+
     await department.save();
-    res.status(201).json({message:"Department added successfully", department});
+    res.status(201).json({ message: "Department added successfully", department });
   } catch (error) {
+    // If something goes wrong, handle error and cleanup if necessary
+    if (req.file) {
+      await cloudinary.v2.uploader.destroy(req.file.public_id);
+    }
     res.status(400).json({ message: error.message });
   }
 };

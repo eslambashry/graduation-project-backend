@@ -15,7 +15,7 @@ export const getAllDoctors = async (req, res) => {
       filters.department = req.query.department;
     }
     
-    const doctors = await doctorModel.find(filters).populate('department');
+    const doctors = await doctorModel.find(filters);
     
     res.status(200).json(doctors);
   } catch (error) {

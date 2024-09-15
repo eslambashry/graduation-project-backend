@@ -6,6 +6,15 @@ const doctorSchema = new Schema({
     required: true,
     trim: true
   },
+  Image: {
+    secure_url:{
+        type: String,
+        required: true,
+    },
+    public_id: {
+        type: String,
+        required: true,
+    }},
   specialization: {
     type: String,
     required: true,
