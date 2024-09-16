@@ -26,7 +26,7 @@ const doctorSchema = new Schema({
   },
   department: {
     type: Schema.Types.ObjectId,
-    ref: 'departmentModel', 
+    ref: 'Department', 
     required: true
   },
   availableDates: [Date], 
