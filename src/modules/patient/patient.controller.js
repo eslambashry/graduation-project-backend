@@ -4,6 +4,7 @@ import { sendEmailService } from "../../services/sendEmailServecies.js";
 import { patientEmailTemp } from "../../units/patientEmail.template.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { resetPasswordTemp } from "../../units/resetPasswordTemplate.js";
 
 // SignUp  => Create Patient
 const signup = async (req, res) => {
@@ -53,7 +54,7 @@ const signin = async (req, res) => {
     !foundedPaitent ||
     !bcrypt.compareSync(password, foundedPaitent.password)
   ) {
-    res.status(401).json({ messgae: "email or password invalid" });
+    return res.status(401).json({ messgae: "email or password invalid" });
   }
   if (!foundedPaitent.isConfirmed) {
     return res
@@ -64,12 +65,42 @@ const signin = async (req, res) => {
     { id: foundedPaitent._id, email: foundedPaitent.email },
     "shit"
   );
-  console.log(token);
-  res.status(200).json({ message: "login successfull", token: token });
+
+  res.status(200).json({
+    message: "login successfull",
+    token: token,
+    data: { email: foundedPaitent.email, name: foundedPaitent.name },
+  });
 };
 
-const forgetPassword = (req, res) => {};
+// Forget password
+const forgetPassword = async (req, res) => {
+  let { email } = req.body;
+  let founded = await patientModel.findOne({ email: email });
+  if (!founded) {
+    return res.status(404).json({ message: "this user is not found" });
+  }
+  sendEmailService({
+    to: email,
+    subject: "Reset Password",
+    message: resetPasswordTemp(email),
+  });
+  return res.status(200).json({ message: "message sent successfully" });
+};
 
-const resetPassword = (req, res) => {};
+// Reset password
+const resetPassword = (req, res) => {
+  let { password } = req.body;
+  let { token } = req.params;
+  jwt.verify(token, "shit", async (err, decoded) => {
+    if (err) {
+      res.status(401).json({ message: "invalid token" });
+    }
+    let founded = await patientModel.findOne({ email: decoded });
+    founded.password = password;
+    founded.save();
+  });
+  return res.status(200).json({ message: "password updated successfully" });
+};
 
 export { signup, verifyEmail, signin, forgetPassword, resetPassword };
