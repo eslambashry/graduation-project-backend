@@ -14,7 +14,7 @@ export const createDepartment = async (req, res) => {
 // Get all departments
 export const getAllDepartments = async (req, res) => {
   try {
-    const departments = await departmentModel.find();
+    const departments = await departmentModel.find().populate('doctors');
     res.status(200).json({message:"success", departments});
   } catch (error) {
     res.status(500).json({ message: error.message });

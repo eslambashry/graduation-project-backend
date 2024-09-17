@@ -22,10 +22,10 @@ const io = new Server(server);
 app.use(cors());
 app.use(express.json());
 
-app.use(blogRoutes)
-app.use(newsRoutes)
-app.use(userRoutes)
-app.use(specialiesRoutes)
+app.use('/api/blogs',blogRoutes)
+app.use('/api/news',newsRoutes)
+// app.use(userRoutes)
+app.use('/api/specialies',specialiesRoutes)
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/users', userRoutes);
