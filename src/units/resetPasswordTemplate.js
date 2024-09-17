@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 export const resetPasswordTemp = (email) => {
   let token = jwt.sign(email, "shit");
-  let link = "http://localhost:3001/resetpassword/";
+  let link = "https://hospital-system-beige.vercel.app/resetpassword/";
   return `<body
       marginheight="0"
       topmargin="0"
