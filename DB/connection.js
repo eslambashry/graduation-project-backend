@@ -7,6 +7,6 @@ export const connectionDB = mongoose
   .then(() => {
     console.log("DB connected Successfully 👋");
   })
-  .catch(() => {
-    console.log("connected failed");
+  .catch((err) => {
+    console.log("connected failed",err); 
   });

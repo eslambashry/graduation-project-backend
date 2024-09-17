@@ -1,4 +1,7 @@
 import { doctorModel } from "../../../DB/models/doctor.model.js";
+import { customAlphabet } from 'nanoid'
+import cloudinary from '../../utilities/cloudinaryConfig.js' 
+const nanoid = customAlphabet('123456_=!ascbhdtel', 5)
 
 // Get all doctors with filtering options
 export const getAllDoctors = async (req, res) => {
@@ -15,7 +18,7 @@ export const getAllDoctors = async (req, res) => {
       filters.department = req.query.department;
     }
     
-    const doctors = await doctorModel.find(filters).populate('department');
+    const doctors = await doctorModel.find(filters);
     
     res.status(200).json(doctors);
   } catch (error) {
@@ -42,14 +45,58 @@ export const getDoctorById = async (req, res) => {
 
 // Create a new doctor
 export const createDoctor = async (req, res) => {
-    try {
-      const newDoctor = new doctorModel(req.body);
-      const addedDoctor = await newDoctor.save();
-      res.status(201).json({message:"Doctor added successfully", addedDoctor});
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+  try {
+    // Extract data from the request body
+    const { name, specialization, userName, nationalID, department, availableDates, contactInfo, gender, dateOfBirth, experience, history, statistics, appointments } = req.body;
+    const { file } = req;
+
+    if (!file) {
+      return res.status(400).json({ message: 'No file uploaded.' });
     }
-  };
+
+    // Upload the image to Cloudinary
+    const customId = nanoid();
+    const uploadResult = await cloudinary.uploader.upload(file.path, {
+      folder: `Hospital/Doctor/${customId}` // Folder structure in Cloudinary
+    });
+
+    // Extract the Cloudinary URL and public ID
+    const { secure_url, public_id } = uploadResult;
+
+    // Create a new doctor instance with the uploaded image URL
+    const newDoctor = new doctorModel({
+      name,
+      specialization,
+      userName,
+      nationalID,
+      department,
+      // availableDates: JSON.parse(availableDates), // Convert string to array if necessary
+      contactInfo,
+      gender,
+      dateOfBirth,
+      experience,
+      history,
+      // statistics: JSON.parse(statistics), // Convert string to object if necessary
+      // appointments: JSON.parse(appointments), // Convert string to array if necessary
+      Image: {
+        secure_url, // Save Cloudinary image URL
+        public_id // Save Cloudinary image public ID for future reference
+      }
+    });
+
+    // Save the doctor to the database
+    const addedDoctor = await newDoctor.save();
+
+    // Respond with success message and doctor details
+    res.status(201).json({
+      message: 'Doctor added successfully',
+      addedDoctor
+    });
+  } catch (error) {
+    console.error('Error creating doctor:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
 // Update a doctor by ID
 export const updateDoctor = async (req, res) => {
     try {
