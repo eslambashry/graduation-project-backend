@@ -180,3 +180,18 @@ export const resetPassword = async(req,res,next) => {
     const updatedUser = await user.save()
     res.status(200).json({message: "Done",updatedUser})
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
