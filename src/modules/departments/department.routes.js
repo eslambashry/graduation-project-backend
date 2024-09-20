@@ -1,20 +1,19 @@
-import { Router } from 'express';
-import { multerCloudFunction } from "../../services/multerCloud.js";
-import { allowedExtensions } from "../../utilities/allowedEtentions.js";
-import { 
-  createDepartment, 
-  getAllDepartments, 
-  getDepartmentById, 
-  updateDepartment, 
-  deleteDepartment 
-} from './department.controller.js';
+import { Router } from "express";
 
-const departmentRoutes = Router()
+import {
+  createDepartment,
+  getAllDepartments,
+  getDepartmentById,
+  updateDepartment,
+  deleteDepartment,
+} from "./department.controller.js";
 
-departmentRoutes.post('/', multerCloudFunction(allowedExtensions.Image).single('image'),createDepartment);
-departmentRoutes.get('/', getAllDepartments);
-departmentRoutes.get('/:id', getDepartmentById);
-departmentRoutes.put('/:id', updateDepartment);
-departmentRoutes.delete('/:id', deleteDepartment);
+const departmentRoutes = Router();
+
+departmentRoutes.post("/create", createDepartment);
+departmentRoutes.get("/get-all", getAllDepartments);
+departmentRoutes.get("/get-one/:id", getDepartmentById);
+departmentRoutes.put("/update/:id", updateDepartment);
+departmentRoutes.delete("/delete/:id", deleteDepartment);
 
 export default departmentRoutes;
