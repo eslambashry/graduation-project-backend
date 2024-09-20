@@ -1,12 +1,28 @@
 import { departmentModel } from "../../../DB/models/department.model.js";
+import { customAlphabet } from 'nanoid'
+import cloudinary from '../../utilities/cloudinaryConfig.js' 
+const nanoid = customAlphabet('123456_=!ascbhdtel', 5)
+
 
 // Create a new department
 export const createDepartment = async (req, res) => {
   try {
-    const department = new departmentModel(req.body);
+    // Extract data from the request body
+    const { name, description } = req.body;
+
+    const department = new departmentModel({
+      name,
+      description,
+    });
+
     await department.save();
-    res.status(201).json({message:"Department added successfully", department});
+
+    res.status(201).json({
+      message: 'Department added successfully',
+      department
+    });
   } catch (error) {
+    console.error('Error creating department:', error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -14,7 +30,7 @@ export const createDepartment = async (req, res) => {
 // Get all departments
 export const getAllDepartments = async (req, res) => {
   try {
-    const departments = await departmentModel.find();
+    const departments = await departmentModel.find().populate('doctors');
     res.status(200).json({message:"success", departments});
   } catch (error) {
     res.status(500).json({ message: error.message });

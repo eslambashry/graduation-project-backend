@@ -3,9 +3,9 @@ import { addNewNews, getAllNews, getSingleNew } from "./news.controller.js";
 
 const newsRoutes = Router()
 
-newsRoutes.post('/create/news',addNewNews)
-newsRoutes.get('/getAllNews',getAllNews)
-newsRoutes.get('/getSingleNews/:id',getSingleNew)
+newsRoutes.post('/',addNewNews)
+newsRoutes.get('/',getAllNews)
+newsRoutes.get('/:id',getSingleNew)
 
 
 export default newsRoutes;

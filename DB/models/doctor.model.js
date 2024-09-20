@@ -17,6 +17,15 @@ const doctorSchema = new Schema({
     unique: true,
     trim: true
   },
+  Image: { // Updated to match the new structure
+  secure_url: {
+    type: String,
+    required: true
+  },
+  public_id: {
+    type: String,
+    required: true
+  }},
   nationalID: {
     type: String,
     required: true,
