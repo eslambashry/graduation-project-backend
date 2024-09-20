@@ -43,12 +43,12 @@ export const getAllDepartments = async (req, res) => {
 export const getDepartmentById = async (req, res) => {
   const { id } = req.params;
 
-  // check is id valid or not
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: "Invalid ID" });
   }
+
   try {
-    const department = await departmentModel.findById(id);
+    const department = await departmentModel.findById(id).populate("doctors");
     if (!department) {
       return res.status(404).json({ message: "Department not found" });
     }
@@ -80,9 +80,12 @@ export const updateDepartment = async (req, res) => {
       return res.status(400).json({ message: "Department already exist" });
     }
 
-    department = await departmentModel.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+    department = await departmentModel
+      .findByIdAndUpdate(id, req.body, {
+        new: true,
+      })
+      .populate("doctors");
+
     res
       .status(200)
       .json({ message: "department updated successfully", department });
