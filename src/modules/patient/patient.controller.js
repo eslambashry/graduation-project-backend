@@ -6,8 +6,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { resetPasswordTemp } from "../../units/resetPasswordTemplate.js";
 
+// update with admin
+const updateAdminPatient = async (req, res) => {};
 
-
+//
 const getAllPatients = async (req, res) => {
   try {
     const patients = await patientModel.find(); // Fetch all patients from the database
@@ -246,5 +248,6 @@ export {
   updatePatient,
   getAllPatients,
   deletePatient,
-  getPatientById
+  getPatientById,
+  updateAdminPatient,
 };

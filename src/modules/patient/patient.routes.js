@@ -7,6 +7,7 @@ import {
   resetPassword,
   signin,
   signup,
+  updateAdminPatient,
   updatePassword,
   updatePatient,
   verifyEmail,
@@ -20,7 +21,8 @@ patientRoutes.post("/signin", signin);
 patientRoutes.post("/forget", forgetPassword);
 patientRoutes.post("/reset/:token", resetPassword);
 patientRoutes.post("/updatepassword/:token", updatePassword);
-patientRoutes.put("/:id", updatePatient);
+patientRoutes.post("/updatePatient/:token", updatePatient);
+patientRoutes.put("/:id", updateAdminPatient );
 patientRoutes.delete('/:id', deletePatient);
 patientRoutes.get('/:id', getPatientById);
 export default patientRoutes;
