@@ -2,8 +2,9 @@ import { doctorModel } from "../../../DB/models/doctor.model.js";
 import { customAlphabet } from 'nanoid'
 import cloudinary from '../../utilities/cloudinaryConfig.js' 
 const nanoid = customAlphabet('123456_=!ascbhdtel', 5)
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt'
 
-// Get all doctors with filtering options
 export const getAllDoctors = async (req, res) => {
   try {
     const filters = {};
@@ -18,8 +19,8 @@ export const getAllDoctors = async (req, res) => {
       filters.department = req.query.department;
     }
     
-    const doctors = await doctorModel.find(filters);
-    
+    const doctors = await doctorModel.find(filters).populate('department', 'name')
+
     res.status(200).json(doctors);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -47,8 +48,12 @@ export const getDoctorById = async (req, res) => {
 export const createDoctor = async (req, res) => {
   try {
     // Extract data from the request body
-    const { name, specialization, userName, nationalID, department, availableDates, contactInfo, gender, dateOfBirth, experience, history, statistics, appointments } = req.body;
+    const { name, specialization, userName, nationalID, department, availableDates, email, phone, password , gender, dateOfBirth, experience, history, statistics, appointments } = req.body;
     const { file } = req;
+
+    // console.log('Request body:', req.body);
+    // console.log('Request file:', req.file);
+
 
     if (!file) {
       return res.status(400).json({ message: 'No file uploaded.' });
@@ -70,8 +75,10 @@ export const createDoctor = async (req, res) => {
       userName,
       nationalID,
       department,
-      // availableDates: JSON.parse(availableDates), // Convert string to array if necessary
-      contactInfo,
+      availableDates: JSON.parse(availableDates), // Convert string to array if necessary
+      email,
+      phone,
+      password,
       gender,
       dateOfBirth,
       experience,
@@ -81,16 +88,25 @@ export const createDoctor = async (req, res) => {
       Image: {
         secure_url, // Save Cloudinary image URL
         public_id // Save Cloudinary image public ID for future reference
-      }
+      },
+       // Save the hashed password
     });
 
-    // Save the doctor to the database
     const addedDoctor = await newDoctor.save();
+
+    const token = jwt.sign(
+      { email: email, id: addedDoctor._id }, // Payload
+      'Doctor', // Secret key from your environment variables
+      { expiresIn: '1h' } // Token expiration time
+    );
+ 
+    // Save the doctor to the database
 
     // Respond with success message and doctor details
     res.status(201).json({
       message: 'Doctor added successfully',
-      addedDoctor
+      addedDoctor,
+      token
     });
   } catch (error) {
     console.error('Error creating doctor:', error);
@@ -108,7 +124,7 @@ export const updateDoctor = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  };
+};
 
 // Delete a doctor by ID
 export const deleteDoctor = async (req, res) => {
@@ -124,3 +140,35 @@ export const deleteDoctor = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+//  ^ doctor login 
+export const login = async (req, res, next) => {
+  const { email, password } = req.body;
+
+    // Check if the user exists
+    const userExsist = await doctorModel.findOne({ 'email': email });
+    if (!userExsist) {
+      return res.status(400).json({ message: 'Incorrect email' });
+    }
+
+
+    if (!userExsist.password == password) {
+      return res.status(400).json({ message: 'Incorrect password' });
+    }
+
+    // Generate JWT token after successful login
+    const token = jwt.sign(
+      { email: userExsist.email, id: userExsist._id }, // Use the correct references
+      process.env.JWT_SECRET || 'Doctor', // Use environment variable for secret
+      { expiresIn: '1h' } // Token expiration time
+    );
+
+    // Respond with success message, user details, and token
+    res.status(200).json({
+      message: 'Login Success',
+      user: userExsist,
+      token
+    });
+};
+
+

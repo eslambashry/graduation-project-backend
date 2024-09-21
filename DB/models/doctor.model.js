@@ -8,7 +8,6 @@ const doctorSchema = new Schema({
   },
   specialization: {
     type: String,
-    required: true,
     trim: true
   },
   userName: {
@@ -17,15 +16,16 @@ const doctorSchema = new Schema({
     unique: true,
     trim: true
   },
-  Image: { // Updated to match the new structure
-  secure_url: {
-    type: String,
-    required: true
+  Image: {
+    secure_url: {
+      type: String,
+      required: true
+    },
+    public_id: {
+      type: String,
+      required: true
+    }
   },
-  public_id: {
-    type: String,
-    required: true
-  }},
   nationalID: {
     type: String,
     required: true,
@@ -35,22 +35,24 @@ const doctorSchema = new Schema({
   },
   department: {
     type: Schema.Types.ObjectId,
-    ref: 'Department', 
+    ref: 'Department',
     required: true
   },
-  availableDates: [Date], 
-  contactInfo: {
-    phone: {
-      type: String,
-      required: true,
-      match: [/^\d{10,11}$/, 'Please provide a valid phone number']
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email address']
-    }
+  availableDates: [Date],
+  phone: {
+    type: String,
+    required: true,
+    match: [/^\d{10,11}$/, 'Please provide a valid phone number']
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email address']
+  },
+  password: {
+    type: String,
+    required: true
   },
   gender: {
     type: String,
@@ -67,31 +69,27 @@ const doctorSchema = new Schema({
     min: 0
   },
   history: {
-    type: String, 
+    type: String,
     default: ''
   },
   statistics: {
-    type: Map, 
+    type: Map,
     of: Number
   },
   appointments: [{
     appointID: {
       type: Schema.Types.ObjectId,
-      ref: 'Appointment', 
+      ref: 'Appointment'
     },
     patientID: {
       type: Schema.Types.ObjectId,
-      ref: 'Patient' 
+      ref: 'Patient'
     },
     date: Date,
     time: String,
-    status: {
-      type: String,
-      enum: ['pending', 'confirmed', 'rejected', 'completed'],
-      default: 'pending'
-    },
     report: String
   }]
 }, { timestamps: true, versionKey: false });
+
 
 export const doctorModel = model('Doctor', doctorSchema);

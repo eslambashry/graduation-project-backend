@@ -57,5 +57,5 @@ const appointmentSchema = new Schema({
   }
 }, { timestamps: true, versionKey: false });
 
-export const appointmentModel = model('appointment', appointmentSchema);
+export const appointmentModel = model('Appointment', appointmentSchema);
 

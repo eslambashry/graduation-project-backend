@@ -13,6 +13,14 @@ const departmentSchema = new Schema(
       type: String,
       trim: true,
     },
+    imageUrl: {
+      type: String,
+      required: true,
+    },
+    imagePublicId: {
+      type: String,
+      required: true,
+    },
     doctors: [
       {
         type: Schema.Types.ObjectId,
