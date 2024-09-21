@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-
+// new update
 const departmentSchema = new Schema(
   {
     name: {
@@ -12,14 +12,6 @@ const departmentSchema = new Schema(
     description: {
       type: String,
       trim: true,
-    },
-    imageUrl: {
-      type: String,
-      required: true,
-    },
-    imagePublicId: {
-      type: String,
-      required: true,
     },
     doctors: [
       {
