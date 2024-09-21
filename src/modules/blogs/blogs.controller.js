@@ -1,28 +1,22 @@
-import { blogsModel } from "../../../DB/models/blogs.model.js"
+import { blogsModel } from "../../../DB/models/blogs.model.js";
 
+// add new blog
+const addNewBlog = async (req, res, next) => {
+  let blog = req.body;
+  let newBlog = new blogsModel(blog);
+  await newBlog.save();
 
-export const addNewBlog = async (req,res,next) => {
+  res.status(201).json({ message: "blog created ", newBlog });
+};
 
-    const blogs = req.body
-    
-   const newBlog = await blogsModel.insertMany(blogs) 
-
-   if(!newBlog) res.status(400).json({message:"Error When Add Blog"})
-
-
-    res.status(201).json({message:"added",newBlog})
-
-}
-
-
-export const getAllBlogs = async(req,res,next) => {
-    const blogs = await blogsModel.find()
-
-    if(!blogs) res.status(404).json({message:"Didn't Find Any Blogs"})
-
-        res.status(201).json({message:"blogs",blogs})
-}
-
+// get all blogs
+const getAllBlogs = async (req, res, next) => {
+  let blogs = await blogsModel.find();
+  if (!blogs) {
+    res.status(404).json({ message: "Blogs not found yet" });
+  }
+  res.status(201).json({ message: "blogs", blogs: blogs });
+};
 export const getSingleBlog = async (req,res,next) => {
     const {id} = req.params
 
