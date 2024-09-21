@@ -18,7 +18,7 @@ export const addNewBlog = async (req,res,next) => {
 export const getAllBlogs = async(req,res,next) => {
     const blogs = await blogsModel.find()
 
-    if(!blogs) res.status(404).json({message:"Didn't Found Any Blogs"})
+    if(!blogs) res.status(404).json({message:"Didn't Find Any Blogs"})
 
         res.status(201).json({message:"blogs",blogs})
 }
