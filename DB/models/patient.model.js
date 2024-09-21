@@ -22,9 +22,6 @@ const patientSchema = new Schema(
       enum: ["male", "female", "is not selected"],
       default: "is not selected",
     },
-    phone: {
-      type: "String",
-    },
     isConfirmed: {
       type: Boolean,
       default: false,
