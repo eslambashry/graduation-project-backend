@@ -53,7 +53,7 @@ export const createDepartment = async (req, res) => {
 export const getAllDepartments = async (req, res) => {
   try {
     const departments = await departmentModel.find().populate('doctors');
-    res.status(200).json({message:"success", departments});
+    res.status(200).json(departments);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
