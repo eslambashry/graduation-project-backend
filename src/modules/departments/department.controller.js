@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { departmentModel } from "../../../DB/models/department.model.js";
 
+//new update
 // Create a new department
 export const createDepartment = async (req, res) => {
   try {

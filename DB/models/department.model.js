@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-
+// new update
 const departmentSchema = new Schema(
   {
     name: {

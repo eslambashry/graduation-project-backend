@@ -1,5 +1,5 @@
 import { Router } from "express";
-
+//new update
 import {
   createDepartment,
   getAllDepartments,
