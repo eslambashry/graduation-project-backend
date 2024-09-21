@@ -6,6 +6,61 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { resetPasswordTemp } from "../../units/resetPasswordTemplate.js";
 
+
+
+const getAllPatients = async (req, res) => {
+  try {
+    const patients = await patientModel.find(); // Fetch all patients from the database
+    res.status(200).json({
+      message: "Patients retrieved successfully",
+      data: patients,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error retrieving patients",
+      error: error.message,
+    });
+  }
+};
+
+// Delete Patient
+const deletePatient = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedPatient = await patientModel.findByIdAndDelete(id);
+    if (!deletedPatient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+    return res.status(200).json({ message: "Patient deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error deleting patient",
+      error: error.message,
+    });
+  }
+};
+// Get Patient By ID
+const getPatientById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const patient = await patientModel.findById(id);
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+    return res.status(200).json({
+      message: "Patient retrieved successfully",
+      data: patient,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error retrieving patient",
+      error: error.message,
+    });
+  }
+};
+
 // SignUp  => Create Patient
 const signup = async (req, res) => {
   const { email } = req.body;
@@ -189,4 +244,7 @@ export {
   resetPassword,
   updatePassword,
   updatePatient,
+  getAllPatients,
+  deletePatient,
+  getPatientById
 };
