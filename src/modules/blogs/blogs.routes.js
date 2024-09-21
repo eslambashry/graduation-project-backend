@@ -5,7 +5,7 @@ import {
   getAllBlogs,
   getSingleBlog,
   updateBlog,
-} from "./blogs..js";
+} from "./blogs.controller.js";
 
 const blogRoutes = Router();
 
