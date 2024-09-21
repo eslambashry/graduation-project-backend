@@ -69,7 +69,11 @@ const signin = async (req, res) => {
   res.status(200).json({
     message: "login successfull",
     token: token,
-    data: { email: foundedPaitent.email, name: foundedPaitent.name },
+    data: {
+      email: foundedPaitent.email,
+      name: foundedPaitent.name,
+      phone: foundedPaitent.phone,
+    },
   });
 };
 
@@ -103,4 +107,86 @@ const resetPassword = (req, res) => {
   return res.status(200).json({ message: "password updated successfully" });
 };
 
-export { signup, verifyEmail, signin, forgetPassword, resetPassword };
+// Update Password
+const updatePassword = (req, res) => {
+  let { password } = req.body;
+  let { token } = req.params;
+
+  jwt.verify(token, "shit", async (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: "you are not authurized" });
+    }
+    let foundedPatient = await patientModel.findById(decoded.id);
+    let identicalPassword = bcrypt.compareSync(
+      password,
+      foundedPatient.password
+    );
+
+    if (identicalPassword) {
+      return res.status(403).json({ message: "same old password" });
+    }
+
+    foundedPatient.password = password;
+    foundedPatient.save();
+
+    return res.status(200).json({
+      message: "password updated successfully",
+    });
+  });
+};
+
+// Update Patient
+const updatePatient = async (req, res) => {
+  const { token } = req.params;
+  const { email, name, phone } = req.body;
+
+  jwt.verify(token, "shit", async (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const foundedPatient = await patientModel.findById(decoded.id);
+    if (!foundedPatient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+    const emailExists = await patientModel.findOne({ email });
+    if (
+      emailExists &&
+      emailExists._id.toString() !== foundedPatient._id.toString() // 7eta say3a de
+    ) {
+      return res.status(409).json({ message: "This email already exists" });
+    }
+    foundedPatient.email = email;
+    foundedPatient.name = name;
+    foundedPatient.phone = phone;
+    await foundedPatient.save();
+
+    let token = jwt.sign(
+      {
+        id: foundedPatient._id,
+        email: foundedPatient.email,
+      },
+      "shit"
+    );
+
+    return res.status(200).json({
+      message: "Updated successfully",
+      token: token,
+      data: {
+        email: foundedPatient.email,
+        name: foundedPatient.name,
+        phone: foundedPatient.phone,
+      },
+    });
+  });
+};
+
+export {
+  signup,
+  verifyEmail,
+  signin,
+  forgetPassword,
+  resetPassword,
+  updatePassword,
+  updatePatient,
+};

@@ -1,54 +1,49 @@
-import { Schema,model } from "mongoose"
-import pkg from 'bcrypt'
+import { Schema, model } from "mongoose";
+import pkg from "bcrypt";
 
-const userSchema = new Schema({
-    userName:{
-        type:String,
-        required: true,
+const userSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
     },
-    email:{
-        type:String,
-        required:true,
-        unique:true,
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    password:{
-        type:String,
-        required:true,
+    password: {
+      type: String,
+      required: true,
     },
-    isConfirmed:{
-        type:Boolean,
-        required:true,
-        default:false,
+    role: {
+      type: String,
+      default: "admin",
+      enum: ["admin"],
     },
-    role:{
-        type:String,
-        default:'doctor',
-        enum:['admin','doctor']
+    phoneNumber: {
+      type: String,
     },
-    phoneNumber:{
-        type:String,
+    address: [
+      {
+        type: String,
+      },
+    ],
+    profilePicture: {
+      secure_url: String,
+      public_id: String,
     },
-    address:[{
-        type:String,
-        required:true,
-    }],
-    profilePicture:{
-        secure_url:String,
-        public_id:String,
-    },
-    gender:{
-        type:String,
-        default:'not specified',
-        enum:['male','female','not specified']
-    },
-    age:Number,
-    token:String,
-    forgetCode:String,
-},{timestamps:true})
+    age: Number,
+    token: String,
+    forgetCode: String,
+  },
+  { timestamps: true }
+);
 
-    userSchema.pre('save',function(){
-        this.password = pkg.hashSync(this.password, +process.env.SALT_ROUNDS)
-    })
+userSchema.pre("save", function () {
+  if (this.isModified("password")) {
+    this.password = pkg.hashSync(this.password, +process.env.SALT_ROUNDS);
+  }
+});
 
-export const userModel = model('user', userSchema)
-
+export const userModel = model("user", userSchema);
