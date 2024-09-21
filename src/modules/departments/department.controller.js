@@ -5,6 +5,7 @@ import cloudinary from '../../utilities/cloudinaryConfig.js'
 const nanoid = customAlphabet('123456_=!ascbhdtel', 5)
 
 
+//new update
 // Create a new department
 export const createDepartment = async (req, res) => {
   try {
