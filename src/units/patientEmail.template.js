@@ -123,7 +123,7 @@ export const patientEmailTemp = (email, port) => {
                           </strong>
                         </p>
                         <a
-                          href="http://localhost:${port}/api/patient/verify/${token}"
+                          href="https://hospital-system-beige.vercel.app/accountverified/${token}"
                           style="
                             background: #232f66;
                             text-decoration: none !important;
