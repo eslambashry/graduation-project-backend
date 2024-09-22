@@ -50,7 +50,7 @@ const updateBlog = async (req, res) => {
   res.status(200).json({ message: "blog updated successfully" });
 };
 
-// delete blog
+// delete blogs
 const deleteBlog = async (req, res) => {
   let { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
