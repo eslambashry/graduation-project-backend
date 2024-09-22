@@ -105,14 +105,25 @@ const signup = async (req, res) => {
     return res.status(401).json({ message: "already register" });
   }
   let newPatient = new patientModel(req.body);
-  newPatient.save();
-  // Send Mail
-  sendEmailService({
-    to: email,
-    subject: "Confirm your email",
-    message: patientEmailTemp(email, port),
-  });
-  res.status(201).json({ message: "account created" });
+  try {
+    await newPatient.save();
+    sendEmailService({
+      to: email,
+      subject: "Confirm your email",
+      message: patientEmailTemp(email, port),
+    });
+    res.status(201).json({ message: "account created" });
+  } catch (error) {
+    res.status(500).json({ message: "Error occurred", error });
+  }
+  // await newPatient.save();
+  // // Send Mail
+  // sendEmailService({
+  //   to: email,
+  //   subject: "Confirm your email",
+  //   message: patientEmailTemp(email, port),
+  // });
+  // res.status(201).json({ message: "account created" });
 };
 
 // Verify Email
