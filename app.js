@@ -23,17 +23,14 @@ const io = new Server(server);
 app.use(cors());
 app.use(express.json());
 
-
-app.use('/api/blogs',blogRoutes)
-app.use('/api/news',newsRoutes)
-app.use('/api/specialies',specialiesRoutes)
-app.use('/api/doctors', doctorRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/departments', departmentRoutes); 
+app.use("/api/blogs", blogRoutes);
+app.use("/api/news", newsRoutes);
+app.use("/api/specialies", specialiesRoutes);
+app.use("/api/doctors", doctorRoutes);
+app.use("/api/appointments", appointmentRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/departments", departmentRoutes);
 app.use("/api/patient", patientRoutes);
-
-
 
 connectionDB;
 
