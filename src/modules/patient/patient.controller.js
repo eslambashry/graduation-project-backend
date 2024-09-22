@@ -5,9 +5,43 @@ import { patientEmailTemp } from "../../units/patientEmail.template.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { resetPasswordTemp } from "../../units/resetPasswordTemplate.js";
+import mongoose from "mongoose";
 
-// update with admin
-const updateAdminPatient = async (req, res) => {};
+// update from admin
+const updateAdminPatient = async (req, res) => {
+  let { id } = req.params;
+  let { email } = req.body;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "invalid id" });
+    }
+
+    let foundedPatient = await patientModel.findById(id);
+    if (!foundedPatient) {
+      return res.status(404).json({ message: "patient not found" });
+    }
+
+    if (!email) {
+      return res.status(400).json({ message: "email is required" });
+    }
+
+    let emailExists = await patientModel.findOne({ email: email });
+    if (emailExists && emailExists._id.toString() !== id.toString()) {
+      return res.status(400).json({ message: "email already exists" });
+    }
+
+    const updatedPatient = await patientModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+
+    return res
+      .status(200)
+      .json({ message: "Updated successfully", updatedPatient });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 //
 const getAllPatients = async (req, res) => {
