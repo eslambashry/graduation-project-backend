@@ -47,10 +47,10 @@ const updateBlog = async (req, res) => {
   }
 
   let updatedBlog = await blogsModel.findByIdAndUpdate(id, req.body);
-  res.status(400).json({ message: "blog updated successfully" });
+  res.status(200).json({ message: "blog updated successfully" });
 };
 
-// delete blog
+// delete blogs
 const deleteBlog = async (req, res) => {
   let { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -61,7 +61,7 @@ const deleteBlog = async (req, res) => {
   if (!founded) {
     return res.status(404).json({ message: "blog not found" });
   }
-  let deletedBlog = blogsModel.findByIdAndDelete(id);
+  let deletedBlog = await blogsModel.findByIdAndDelete(id);
 
   return res.status(200).json({ message: "blog deleted successfully" });
 };
