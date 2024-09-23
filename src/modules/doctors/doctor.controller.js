@@ -4,11 +4,12 @@ import cloudinary from '../../utilities/cloudinaryConfig.js'
 const nanoid = customAlphabet('123456_=!ascbhdtel', 5)
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt'
+import { departmentModel } from "../../../DB/models/department.model.js";
 
 export const getAllDoctors = async (req, res) => {
   try {
     const filters = {};
-    
+
     if (req.query.specialization) {
       filters.specialization = req.query.specialization;
     }
@@ -16,14 +17,19 @@ export const getAllDoctors = async (req, res) => {
       filters.gender = req.query.gender;
     }
     if (req.query.department) {
-      filters.department = req.query.department;
+      // Fetch the department ObjectId by name
+      const department = await departmentModel.findOne({ name: req.query.department });
+      if (department) {
+        filters.department = department._id; // Use the ObjectId for filtering
+      } else {
+        return res.status(404).json({ message: 'Department not found' });
+      }
     }
-    
-    const doctors = await doctorModel.find(filters).populate('department', 'name')
 
+    const doctors = await doctorModel.find(filters).populate('department', 'name');
     res.status(200).json(doctors);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Failed to retrieve doctors', error: error.message });
   }
 };
 
