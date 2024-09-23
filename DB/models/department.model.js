@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 
+// Updated Department Schema
 const departmentSchema = new Schema(
   {
     name: {
@@ -13,14 +14,6 @@ const departmentSchema = new Schema(
       type: String,
       trim: true,
     },
-    imageUrl: {
-      type: String,
-      required: true,
-    },
-    imagePublicId: {
-      type: String,
-      required: true,
-    },
     doctors: [
       {
         type: Schema.Types.ObjectId,
@@ -31,4 +24,10 @@ const departmentSchema = new Schema(
   { timestamps: true, versionKey: false }
 );
 
+// Method to get department with populated doctors
+departmentSchema.methods.getDoctors = async function () {
+  return await this.model('Doctor').find({ department: this._id }).populate('department', 'name');
+};
+
+// Create Department Model
 export const departmentModel = model("Department", departmentSchema);

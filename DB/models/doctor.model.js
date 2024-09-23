@@ -8,7 +8,6 @@ const doctorSchema = new Schema({
   },
   specialization: {
     type: String,
-    required: true,
     trim: true
   },
   userName: {
@@ -40,21 +39,21 @@ const doctorSchema = new Schema({
     required: true
   },
   availableDates: [Date],
-    phone: {
-      type: String,
-      required: true,
-      match: [/^\d{10,11}$/, 'Please provide a valid phone number']
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email address']
-    },
-    password: {
-      type: String,
-      required: true
-    },
+  phone: {
+    type: String,
+    required: true,
+    match: [/^\d{10,11}$/, 'Please provide a valid phone number']
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email address']
+  },
+  password: {
+    type: String,
+    required: true
+  },
   gender: {
     type: String,
     enum: ['male', 'female', 'other'],
@@ -80,7 +79,7 @@ const doctorSchema = new Schema({
   appointments: [{
     appointID: {
       type: Schema.Types.ObjectId,
-      ref: 'appointment',
+      ref: 'Appointment'
     },
     patientID: {
       type: Schema.Types.ObjectId,

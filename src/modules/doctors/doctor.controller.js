@@ -4,12 +4,12 @@ import cloudinary from '../../utilities/cloudinaryConfig.js'
 const nanoid = customAlphabet('123456_=!ascbhdtel', 5)
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt'
+import { departmentModel } from "../../../DB/models/department.model.js";
 
-// Get all doctors with filtering options
 export const getAllDoctors = async (req, res) => {
   try {
     const filters = {};
-    
+
     if (req.query.specialization) {
       filters.specialization = req.query.specialization;
     }
@@ -17,14 +17,19 @@ export const getAllDoctors = async (req, res) => {
       filters.gender = req.query.gender;
     }
     if (req.query.department) {
-      filters.department = req.query.department;
+      // Fetch the department ObjectId by name
+      const department = await departmentModel.findOne({ name: req.query.department });
+      if (department) {
+        filters.department = department._id; // Use the ObjectId for filtering
+      } else {
+        return res.status(404).json({ message: 'Department not found' });
+      }
     }
-    
-    const doctors = await doctorModel.find(filters).populate('department');
-    
+
+    const doctors = await doctorModel.find(filters).populate('department', 'name');
     res.status(200).json(doctors);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Failed to retrieve doctors', error: error.message });
   }
 };
 
@@ -49,8 +54,12 @@ export const getDoctorById = async (req, res) => {
 export const createDoctor = async (req, res) => {
   try {
     // Extract data from the request body
-    const { name, specialization, userName, nationalID, department, availableDates, contactInfo, gender, dateOfBirth, experience, history, statistics, appointments } = req.body;
+    const { name, specialization, userName, nationalID, department, availableDates, email, phone, password , gender, dateOfBirth, experience, history, statistics, appointments } = req.body;
     const { file } = req;
+
+    // console.log('Request body:', req.body);
+    // console.log('Request file:', req.file);
+
 
     if (!file) {
       return res.status(400).json({ message: 'No file uploaded.' });
@@ -64,7 +73,6 @@ export const createDoctor = async (req, res) => {
 
     // Extract the Cloudinary URL and public ID
     const { secure_url, public_id } = uploadResult;
-    const hashedPassword = bcrypt.hashSync(contactInfo.password, 10); // 10 is the salt rounds
 
     // Create a new doctor instance with the uploaded image URL
     const newDoctor = new doctorModel({
@@ -74,7 +82,9 @@ export const createDoctor = async (req, res) => {
       nationalID,
       department,
       availableDates: JSON.parse(availableDates), // Convert string to array if necessary
-      contactInfo,
+      email,
+      phone,
+      password,
       gender,
       dateOfBirth,
       experience,
@@ -91,7 +101,7 @@ export const createDoctor = async (req, res) => {
     const addedDoctor = await newDoctor.save();
 
     const token = jwt.sign(
-      { email: contactInfo.email, id: addedDoctor._id }, // Payload
+      { email: email, id: addedDoctor._id }, // Payload
       'Doctor', // Secret key from your environment variables
       { expiresIn: '1h' } // Token expiration time
     );
@@ -120,7 +130,7 @@ export const updateDoctor = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  };
+};
 
 // Delete a doctor by ID
 export const deleteDoctor = async (req, res) => {
@@ -136,7 +146,6 @@ export const deleteDoctor = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 //  ^ doctor login 
 export const login = async (req, res, next) => {

@@ -1,5 +1,5 @@
-import { Schema,model } from "mongoose"
-import pkg from 'bcrypt'
+import { Schema, model } from "mongoose";
+import pkg from "bcrypt";
 
 const userSchema = new Schema({
     userName:{
@@ -50,5 +50,5 @@ const userSchema = new Schema({
         this.password = pkg.hashSync(this.password, +process.env.SALT_ROUNDS)
     })
 
-export const userModel = model('user', userSchema)
 
+export const userModel = model("user", userSchema);

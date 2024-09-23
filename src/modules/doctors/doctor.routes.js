@@ -11,8 +11,8 @@ const doctorRoutes = Router();
 doctorRoutes.get('/', getAllDoctors);
 doctorRoutes.get('/:id', getDoctorById);
 
-doctorRoutes.post('/',multerCloudFunction(allowedExtensions.Image).single('image'), validateDoctor,createDoctor); 
-doctorRoutes.put('/:id', updateDoctor); 
+doctorRoutes.post('/',multerCloudFunction(allowedExtensions.Image).single('image'),validateDoctor,createDoctor); 
+doctorRoutes.put('/:id', validateDoctor, updateDoctor); 
 doctorRoutes.delete('/:id', isAdmin, deleteDoctor); 
 doctorRoutes.post("/login",login)
 
