@@ -20,7 +20,7 @@ export const getAllDoctors = async (req, res) => {
       filters.department = req.query.department;
     }
     
-    const doctors = await doctorModel.find(filters);
+    const doctors = await doctorModel.find(filters).populate('department');
     
     res.status(200).json(doctors);
   } catch (error) {
@@ -143,19 +143,19 @@ export const login = async (req, res, next) => {
   const { email, password } = req.body;
 
     // Check if the user exists
-    const userExsist = await doctorModel.findOne({ 'contactInfo.email': email });
+    const userExsist = await doctorModel.findOne({ 'email': email });
     if (!userExsist) {
       return res.status(400).json({ message: 'Incorrect email' });
     }
 
 
-    if (!userExsist.contactInfo.password == password) {
+    if (!userExsist.password == password) {
       return res.status(400).json({ message: 'Incorrect password' });
     }
 
     // Generate JWT token after successful login
     const token = jwt.sign(
-      { email: userExsist.contactInfo.email, id: userExsist._id }, // Use the correct references
+      { email: userExsist.email, id: userExsist._id }, // Use the correct references
       process.env.JWT_SECRET || 'Doctor', // Use environment variable for secret
       { expiresIn: '1h' } // Token expiration time
     );

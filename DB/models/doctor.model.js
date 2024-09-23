@@ -1,5 +1,4 @@
 import { model, Schema } from "mongoose";
-import bcrypt from 'bcrypt'; // use bcrypt instead of pkg
 
 const doctorSchema = new Schema({
   name: {
@@ -41,7 +40,6 @@ const doctorSchema = new Schema({
     required: true
   },
   availableDates: [Date],
-  contactInfo: {
     phone: {
       type: String,
       required: true,
@@ -56,8 +54,7 @@ const doctorSchema = new Schema({
     password: {
       type: String,
       required: true
-    }
-  },
+    },
   gender: {
     type: String,
     enum: ['male', 'female', 'other'],
@@ -83,7 +80,7 @@ const doctorSchema = new Schema({
   appointments: [{
     appointID: {
       type: Schema.Types.ObjectId,
-      ref: 'Appointment',
+      ref: 'appointment',
     },
     patientID: {
       type: Schema.Types.ObjectId,
