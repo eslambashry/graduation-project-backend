@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { departmentModel } from "../../../DB/models/department.model.js";
+import { customAlphabet } from 'nanoid'
 
 //new update
 // Create a new department
@@ -38,7 +39,7 @@ export const getAllDepartments = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-};
+}
 
 // Get a department by ID
 export const getDepartmentById = async (req, res) => {
