@@ -82,6 +82,11 @@ const doctorSchema = new Schema(
       type: Map,
       of: Number,
     },
+    role:{
+      type:String,
+      enum:['doctor'],
+      default:'doctor'
+    },
     appointments: [
       {
         appointID: {
