@@ -54,7 +54,7 @@ export const getDoctorById = async (req, res) => {
 export const createDoctor = async (req, res) => {
   try {
     // Extract data from the request body
-    const { name, specialization, userName, nationalID, department, availableDates, email, phone, password , gender, dateOfBirth, experience, history, statistics, appointments } = req.body;
+    const { name, specialization, userName, nationalID, department, availableDates, email, phone, password , gender, role, dateOfBirth, experience, history, statistics, appointments } = req.body;
     const { file } = req;
 
     // console.log('Request body:', req.body);
@@ -88,6 +88,7 @@ export const createDoctor = async (req, res) => {
       gender,
       dateOfBirth,
       experience,
+      role: role || 'doctor',
       history,
       // statistics: JSON.parse(statistics), // Convert string to object if necessary
       // appointments: JSON.parse(appointments), // Convert string to array if necessary
@@ -130,6 +131,19 @@ export const updateDoctor = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
+};
+
+
+export const updateDoctorAvailableDate = async (req, res) => {
+  try {
+    const updatedDoctor = await doctorModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updatedDoctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+    res.status(200).json({message:"Doctor Updated Successfully" , updatedDoctor});
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // Delete a doctor by ID

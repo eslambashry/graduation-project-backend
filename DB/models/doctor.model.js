@@ -85,6 +85,11 @@ const doctorSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'Patient'
     },
+    role:{
+      type:String,
+      enum:['doctor','admin'],
+      default:'doctor'
+    },
     date: Date,
     time: String,
     report: String
