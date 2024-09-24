@@ -59,90 +59,98 @@ export const getDoctorById = async (req, res) => {
 
 // Create a new doctor
 export const createDoctor = async (req, res) => {
-  try {
-    // Extract data from the request body
-    const {
-      name,
-      specialization,
-      userName,
-      nationalID,
-      department,
-      availableDates,
-      email,
+  // Extract data from the request body
+  try{
+  const { 
+      name, 
+      specialization, 
+      userName, 
+      nationalID, 
+      department, 
+      availableDates, // Ensure this is an array
+      email, 
       phone,
-      password,
-      gender,
-      role,
-      dateOfBirth,
-      experience,
-      history,
-      statistics,
-      appointments,
-    } = req.body;
-    const { file } = req;
+      price, 
+      password, 
+      gender, 
+      dateOfBirth, 
+      experience, 
+      history 
+  } = req.body;
 
-    // console.log('Request body:', req.body);
-    // console.log('Request file:', req.file);
+  const { file } = req;
 
-    if (!file) {
+  // Check if the file is provided
+  if (!file) {
       return res.status(400).json({ message: "No file uploaded." });
-    }
+  }
 
-    // Upload the image to Cloudinary
-    const customId = nanoid();
-    const uploadResult = await cloudinary.uploader.upload(file.path, {
+  // Validate availableDates format
+  let parsedAvailableDates;
+  try {
+      // Ensure availableDates is parsed as an array if it comes as a string
+      parsedAvailableDates = typeof availableDates === 'string' ? JSON.parse(availableDates) : availableDates;
+
+      // Optionally validate the structure of each date object
+      parsedAvailableDates.forEach(date => {
+          if (!date.date || !date.fromTime || !date.toTime) {
+              throw new Error("Invalid date format");
+          }
+      });
+  } catch (error) {
+      return res.status(400).json({ message: "Invalid availableDates format", error: error.message });
+  }
+
+  // Upload the image to Cloudinary
+  const customId = nanoid();
+  const uploadResult = await cloudinary.uploader.upload(file.path, {
       folder: `Hospital/Doctor/${customId}`, // Folder structure in Cloudinary
-    });
+  });
 
-    // Extract the Cloudinary URL and public ID
-    const { secure_url, public_id } = uploadResult;
+  // Extract the Cloudinary URL and public ID
+  const { secure_url, public_id } = uploadResult;
 
-    // Create a new doctor instance with the uploaded image URL
-    const newDoctor = new doctorModel({
+  // Create a new doctor instance with the uploaded image URL
+  const newDoctor = new doctorModel({
       name,
       specialization,
       userName,
       nationalID,
       department,
-      availableDates: JSON.parse(availableDates), 
+      availableDates: parsedAvailableDates, // Use parsed data
       email,
       phone,
+      price,
       password,
       gender,
       dateOfBirth,
       experience,
-      role: role || "doctor",
       history,
-      // statistics: JSON.parse(statistics), // Convert string to object if necessary
-      // appointments: JSON.parse(appointments), // Convert string to array if necessary
       Image: {
-        secure_url, // Save Cloudinary image URL
-        public_id, // Save Cloudinary image public ID for future reference
+          secure_url, // Save Cloudinary image URL
+          public_id, // Save Cloudinary image public ID for future reference
       },
-      // Save the hashed password
-    });
+  });
 
-    const addedDoctor = await newDoctor.save();
+  // Save the doctor to the database
+  const addedDoctor = await newDoctor.save();
 
-    const token = jwt.sign(
+  // Generate a token
+  const token = jwt.sign(
       { email: email, id: addedDoctor._id }, // Payload
-      "Doctor", // Secret key from your environment variables
+      "Doctor", // Secret key
       { expiresIn: "1h" } // Token expiration time
-    );
+  );
 
-    // Save the doctor to the database
-
-    // Respond with success message and doctor details
-    res.status(201).json({
-      message: "Doctor added successfully",
-      addedDoctor,
-      token,
-    });
-  } catch (error) {
-    console.error("Error creating doctor:", error);
-    res.status(500).json({ message: error.message });
-  }
+  // Respond with success message and doctor details
+} catch (error) {
+  // Handle any unexpected errors
+  console.error(error);
+  res.status(500).json({ message: "An error occurred while adding the doctor.", error: error.message });
+}
 };
+
+
 // Update a doctor by ID
 export const updateDoctor = async (req, res) => {
   try {
@@ -163,22 +171,19 @@ export const updateDoctor = async (req, res) => {
 };
 
 export const updateDoctorAvailableDate = async (req, res) => {
-  try {
     const updatedDoctor = await doctorModel.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      { availableDates: req.body.availableDates },
       { new: true }
     );
+    
     if (!updatedDoctor) {
       return res.status(404).json({ message: "Doctor not found" });
     }
-    res
-      .status(200)
-      .json({ message: "Doctor Updated Successfully", updatedDoctor });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    
+    res.status(200).json({ message: "Doctor Updated Successfully", updatedDoctor });
   }
-};
+
 
 // Delete a doctor by ID
 export const deleteDoctor = async (req, res) => {
@@ -199,16 +204,23 @@ export const deleteDoctor = async (req, res) => {
 export const login = async (req, res, next) => {
   const { email, password } = req.body;
 
+
+  // console.log(req.body);
+  
+
   // Check if the user exists
   const userExsist = await doctorModel.findOne({ email: email });
-  // check validation
-  if (!userExsist || userExsist.password !== password) {
-    return res.status(400).json({ message: "Incorrect email or password" });
+  if (!userExsist) {
+    return res.status(400).json({ message: "Incorrect email" });
+  }
+
+  if (userExsist.password !== password) {
+    return res.status(400).json({ message: "Incorrect password" });
   }
 
   // Generate JWT token after successful login
   const token = jwt.sign(
-    { email: userExsist.email, id: userExsist._id }, // Use the correct references
+    { email: userExsist.email, id: userExsist._id ,role: userExsist.role}, // Use the correct references
     process.env.JWT_SECRET || "Doctor", // Use environment variable for secret
     { expiresIn: "1h" } // Token expiration time
   );

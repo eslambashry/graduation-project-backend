@@ -39,7 +39,27 @@ const doctorSchema = new Schema(
       ref: "Department",
       required: true,
     },
-    availableDates: [Date],
+// Update availableDates to store objects instead of dates
+availableDates: [
+  {
+    date: {
+      type: Date,
+      // required: true,
+    },
+    fromTime: {
+      type: String,
+      // required: true,
+    },
+    toTime: {
+      type: String,
+      // required: true,
+    }
+  }
+],
+price:{
+  type:Number,
+  required: true
+},
     phone: {
       type: String,
       required: true,

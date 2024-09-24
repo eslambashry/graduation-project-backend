@@ -1,3 +1,4 @@
+import Stripe from 'stripe';
 import { io } from "../../../app.js";
 import { appointmentModel } from "../../../DB/models/appointment.model.js";
 import { doctorModel } from "../../../DB/models/doctor.model.js";
@@ -33,7 +34,7 @@ export const getAppointmentDetails = async (req, res) => {
 // Book appointment
 export const bookAppointment = async (req, res) => {
   try {
-    const { doctorID, patientEmail, date, time, department } = req.body;
+    const { doctorID, patientEmail, date, time, department, price } = req.body;
 
     // Find the patient by email
     const patient = await patientModel.findOne({ email: patientEmail });
@@ -73,7 +74,41 @@ export const bookAppointment = async (req, res) => {
     // Save the appointment
     const savedAppointment = await newAppointment.save();
 
-    res.status(201).json({ message: 'Appointment booked successfully', appointment: savedAppointment });
+    // ^ ====================== Payment Section ==============================
+
+    // Create Stripe checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'], // Only accept card payments
+      mode: 'payment', // Use payment mode for one-time charges
+      customer_email: patientEmail, // Send the invoice/receipt to the patient
+      metadata: {
+        appointmentID: savedAppointment._id.toString(),
+        doctorID: doctorID,
+      }, // Store metadata like appointment or doctor info
+      success_url: 'https://your-frontend-url.com/success', // URL after successful payment
+      cancel_url: 'https://your-frontend-url.com/cancel', // URL after cancelling payment
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `Appointment with Doctor ${doctorID}`,
+            },
+            unit_amount: price * 100, // Convert price to cents as Stripe expects amounts in cents
+          },
+          quantity: 1, // Default to 1 appointment
+        },
+      ],
+    });
+
+    // ^ ====================== Payment Section ==============================
+
+    // Send the session ID to the client so they can redirect to Stripe's hosted checkout page
+    res.status(201).json({
+      message: 'Appointment booked successfully',
+      appointment: savedAppointment,
+      sessionId: session.id, // Pass session ID for Stripe checkout
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
