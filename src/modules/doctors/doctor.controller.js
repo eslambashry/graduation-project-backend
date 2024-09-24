@@ -170,7 +170,6 @@ export const updateDoctor = async (req, res) => {
   }
 };
 
-
 export const updateDoctorAvailableDate = async (req, res) => {
     const updatedDoctor = await doctorModel.findByIdAndUpdate(
       req.params.id,
@@ -179,7 +178,7 @@ export const updateDoctorAvailableDate = async (req, res) => {
     );
     
     if (!updatedDoctor) {
-      return res.status(404).json({ message: 'Doctor not found' });
+      return res.status(404).json({ message: "Doctor not found" });
     }
     
     res.status(200).json({ message: "Doctor Updated Successfully", updatedDoctor });
