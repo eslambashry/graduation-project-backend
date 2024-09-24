@@ -104,7 +104,7 @@ export const createDoctor = async (req, res) => {
       userName,
       nationalID,
       department,
-      availableDates: JSON.parse(availableDates), // Convert string to array if necessary
+      availableDates: JSON.parse(availableDates), 
       email,
       phone,
       password,

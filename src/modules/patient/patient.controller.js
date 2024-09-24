@@ -240,7 +240,7 @@ const updatePassword = (req, res) => {
 // Update Patient
 const updatePatient = async (req, res) => {
   const { token } = req.params;
-  const { email, name, phone } = req.body;
+  const { email, name, phone ,donationAmount} = req.body;
 
   jwt.verify(token, "shit", async (err, decoded) => {
     if (err) {
@@ -261,6 +261,16 @@ const updatePatient = async (req, res) => {
     foundedPatient.email = email;
     foundedPatient.name = name;
     foundedPatient.phone = phone;
+    if (donationAmount) {
+      // Create a new donation entry
+      const newDonation = {
+        amount: donationAmount,
+        date: new Date(),
+      };
+      
+      // Add the donation to the patient's donations array
+      foundedPatient.donations.push(newDonation);
+    }
     await foundedPatient.save();
 
     let token = jwt.sign(
@@ -283,6 +293,51 @@ const updatePatient = async (req, res) => {
   });
 };
 
+
+ const updateDonation = async (req, res) => {
+  const { token } = req.params;
+  const { donationAmount } = req.body;
+
+  jwt.verify(token, "shit", async (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const foundedPatient = await patientModel.findById(decoded.id);
+    if (!foundedPatient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    if (donationAmount && donationAmount > 0) {
+      const newDonation = {
+        donationID: new mongoose.Types.ObjectId(), 
+        amount: donationAmount,
+        date: new Date(),
+      };
+      foundedPatient.donations.push(newDonation); 
+      await foundedPatient.save();
+    } else {
+      return res.status(400).json({ message: "Invalid donation amount" });
+    }
+
+    let newToken = jwt.sign(
+      {
+        id: foundedPatient._id,
+        email: foundedPatient.email,
+      },
+      "shit"
+    );
+
+    return res.status(200).json({
+      message: "Donation updated successfully",
+      token: newToken,
+      data: {
+        donations: foundedPatient.donations, 
+      },
+    });
+  });
+};
+
 export {
   signup,
   verifyEmail,
@@ -295,4 +350,5 @@ export {
   deletePatient,
   getPatientById,
   updateAdminPatient,
+  updateDonation
 };

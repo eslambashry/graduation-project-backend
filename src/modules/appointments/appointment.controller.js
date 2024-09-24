@@ -1,6 +1,8 @@
 import { io } from "../../../app.js";
 import { appointmentModel } from "../../../DB/models/appointment.model.js";
+import { doctorModel } from "../../../DB/models/doctor.model.js";
 import { patientModel } from "../../../DB/models/patient.model.js";
+import { sendSMS } from "../../services/sendSMS.js";
 
 export const getAppointmentDetails = async (req, res) => {
   try {
@@ -39,10 +41,29 @@ export const bookAppointment = async (req, res) => {
       return res.status(404).json({ message: 'Patient not found' });
     }
 
-    // Create a new appointment with the patient's ID
+    // Check if the patient already has an appointment with the same doctor on the same date
+    const existingAppointment = await appointmentModel.findOne({
+      doctorID,
+      patientID: patient._id,
+      date, 
+    });
+
+    if (existingAppointment) {
+      return res.status(409).json({ message: 'You already have an appointment with this doctor on this day' });
+    }
+
+    const doctor = await doctorModel.findById(doctorID);
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+    const formatedDate =new Date(date).toLocaleDateString()
+
+    const message = `Your appointment with Dr. ${doctor.name} on ${formatedDate} at ${time} has been confirmed.`;
+    sendSMS('201110498656', message);
+    // Create a new appointment
     const newAppointment = new appointmentModel({
       doctorID,
-      patientID: patient._id, 
+      patientID: patient._id,
       date,
       time,
       department,
@@ -57,6 +78,7 @@ export const bookAppointment = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 export const updateAppointmentStatus = async (req, res) => {
   try {
     const { appointmentID } = req.params;

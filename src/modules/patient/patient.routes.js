@@ -8,6 +8,7 @@ import {
   signin,
   signup,
   updateAdminPatient,
+  updateDonation,
   updatePassword,
   updatePatient,
   verifyEmail,
@@ -25,4 +26,5 @@ patientRoutes.post("/updatePatient/:token", updatePatient);
 patientRoutes.put("/:id", updateAdminPatient );
 patientRoutes.delete('/:id', deletePatient);
 patientRoutes.get('/:id', getPatientById);
+patientRoutes.post('/updateDonation/:token',updateDonation)
 export default patientRoutes;
