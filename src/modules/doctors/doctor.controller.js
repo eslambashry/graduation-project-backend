@@ -201,7 +201,7 @@ export const login = async (req, res, next) => {
 
   // Check if the user exists
   const userExsist = await doctorModel.findOne({ email: email });
-
+  // check validation
   if (!userExsist || userExsist.password !== password) {
     return res.status(400).json({ message: "Incorrect email or password" });
   }
