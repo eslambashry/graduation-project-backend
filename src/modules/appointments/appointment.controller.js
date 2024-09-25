@@ -247,21 +247,25 @@ export const cancelAppointment = async (req, res) => {
 // +++++++++++++++++++++++++
 
 export const getDoctorAppointment = async (req, res) => {
-  let { token } = req.params;
-  jwt.verify(token, "Doctor", async (error, decoded) => {
-    if (error) {
-      return res.status(400).json({ message: "invalid token" });
-    }
-    if (decoded) {
-      let { id } = decoded;
-      let founded = await appointmentModel
-        .find({ doctorID: id })
-        .populate("doctorID", "name specialization")
-        .populate("patientID", "name")
-        .exec();
-      return res
-        .status(200)
-        .json({ message: "founded successfully", appointments: founded });
-    }
-  });
+  try {
+    let { token } = req.params;
+    jwt.verify(token, "Doctor", async (error, decoded) => {
+      if (error) {
+        return res.status(400).json({ message: "invalid token" });
+      }
+      if (decoded) {
+        let { id } = decoded;
+        let founded = await appointmentModel
+          .find({ doctorID: id })
+          .populate("doctorID", "name specialization")
+          .populate("patientID", "name")
+          .exec();
+        return res
+          .status(200)
+          .json({ message: "founded successfully", appointments: founded });
+      }
+    });
+  } catch (err) {
+    res.stauts(500).json({ message: err.message });
+  }
 };
