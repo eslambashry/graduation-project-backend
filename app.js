@@ -37,7 +37,6 @@ connectionDB;
 
 // sendSMS('201110498656', 'Your appointment is tomorrow at 10 AM.');
 
-
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 
