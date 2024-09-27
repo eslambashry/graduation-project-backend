@@ -60,3 +60,4 @@ const appointmentSchema = new Schema(
 );
 
 export const appointmentModel = model("Appointment", appointmentSchema);
+
