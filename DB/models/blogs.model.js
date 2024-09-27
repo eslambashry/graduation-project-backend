@@ -4,7 +4,7 @@ const blogsSchema = new Schema(
   {
     url: {
       type: String,
-      required: true,
+      // required: true,
     },
     title: {
       type: String,
@@ -13,6 +13,16 @@ const blogsSchema = new Schema(
     body: {
       type: String,
       required: true,
+    },
+    Image: {
+      secure_url: {
+        type: String,
+        required: true,
+      },
+      public_id: {
+        type: String,
+        required: true,
+      },
     },
   },
   { timestamps: true, versionKey: false }
