@@ -4,6 +4,7 @@ import { appointmentModel } from "../../../DB/models/appointment.model.js";
 import { doctorModel } from "../../../DB/models/doctor.model.js";
 import { patientModel } from "../../../DB/models/patient.model.js";
 import { sendSMS } from "../../services/sendSMS.js";
+const stripe = new Stripe('sk_test_51Q0Stx1BDc3FGejoe8y5l8EKXCy9zylTH6kWjLmWqVUKUsgvbgLi1ZCbotQefcrRxkRlMoAVMfDyGVtAHSUounpY00DVLBjyO3')
 
 export const getAppointmentDetails = async (req, res) => {
   try {

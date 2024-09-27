@@ -152,37 +152,101 @@ export const createDoctor = async (req, res) => {
 
 
 // Update a doctor by ID
+
 export const updateDoctor = async (req, res) => {
   try {
-    const updatedDoctor = await doctorModel.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (!updatedDoctor) {
+    let { availableDates, Image } = req.body;
+
+    // Check if availableDates is a string and parse it into an array
+    if (typeof availableDates === 'string') {
+      availableDates = JSON.parse(availableDates);
+    }
+
+    // Find the existing doctor record
+    const doctor = await doctorModel.findById(req.params.id);
+    if (!doctor) {
       return res.status(404).json({ message: "Doctor not found" });
     }
-    res
-      .status(200)
-      .json({ message: "Doctor Updated Successfully", updatedDoctor });
+
+    // Check if a new image file is uploaded
+    if (req.file) {
+      // Remove the old image from Cloudinary
+      if (doctor.Image && doctor.Image.public_id) {
+        await cloudinary.uploader.destroy(doctor.Image.public_id);
+      }
+
+      // Upload the new image to Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'doctors',
+      });
+
+      // Update the Image object with the new Cloudinary image URL and public ID
+      Image = {
+        secure_url: result.secure_url,
+        public_id: result.public_id,
+      };
+    } else {
+      // Keep the existing image if no new image was uploaded
+      Image = doctor.Image;
+    }
+
+    // Perform the update with the parsed availableDates and new image
+    const updatedDoctor = await doctorModel.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, availableDates, Image },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Doctor Updated Successfully", updatedDoctor });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+
 export const updateDoctorAvailableDate = async (req, res) => {
+  try {
+
+    
+    // Validate that the availableDates array exists and follows the new structure
+    const { availableDates } = req.body;
+
+    // console.log(req.body);
+
+    if (!availableDates || !Array.isArray(availableDates)) {
+      return res.status(400).json({ message: "Invalid availableDates format" });
+    }
+
+    // Ensure that each entry in availableDates has 'date', 'fromTime', and 'toTime'
+    const isValid = availableDates.every(dateObj => 
+      dateObj.date && dateObj.fromTime && dateObj.toTime
+    );
+
+    if (!isValid) {
+      return res.status(400).json({ message: "Each available date must have 'date', 'fromTime', and 'toTime'" });
+    }
+
+    // Find the doctor by ID and update the availableDates
     const updatedDoctor = await doctorModel.findByIdAndUpdate(
       req.params.id,
       { availableDates: req.body.availableDates },
       { new: true }
     );
-    
+
     if (!updatedDoctor) {
       return res.status(404).json({ message: "Doctor not found" });
     }
-    
-    res.status(200).json({ message: "Doctor Updated Successfully", updatedDoctor });
+
+    res.status(200).json({
+      message: "Doctor Updated Successfully",
+      updatedDoctor
+    });
+  } catch (error) {
+    console.error("Error updating available dates:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
+};
+
 
 
 // Delete a doctor by ID
@@ -232,3 +296,39 @@ export const login = async (req, res, next) => {
     token,
   });
 };
+
+
+
+
+
+
+
+
+
+
+
+
+// ! getDoctorsWithAppointments
+
+
+export const getDoctorsWithAppointments = async (req, res) => {
+  try {
+    const doctors = await doctorModel.find({})
+      .populate({
+        path: 'appointments.appointID',
+        model: 'Appointment',
+        match: {
+          date: { $gte: new Date() }
+        }
+      });
+
+    res.status(200).json(doctors);
+  } catch (error) {
+    console.error('Error fetching doctors with appointments:', error);
+    if (error.kind === 'ObjectId') {
+      return res.status(400).json({ error: 'Invalid ObjectId format' });
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
