@@ -4,6 +4,8 @@ import { appointmentModel } from "../../../DB/models/appointment.model.js";
 import { doctorModel } from "../../../DB/models/doctor.model.js";
 import { patientModel } from "../../../DB/models/patient.model.js";
 import { sendSMS } from "../../services/sendSMS.js";
+import moment from 'moment'; 
+
 const stripe = new Stripe('sk_test_51Q0Stx1BDc3FGejoe8y5l8EKXCy9zylTH6kWjLmWqVUKUsgvbgLi1ZCbotQefcrRxkRlMoAVMfDyGVtAHSUounpY00DVLBjyO3')
 
 export const getAppointmentDetails = async (req, res) => {
@@ -187,7 +189,7 @@ export const addReportToAppointment = async (req, res) => {
     }
 
     // Add the report to the appointment
-    appointment.report = report; // Make sure to set the report field in the model
+    appointment.report = report; 
     await appointment.save();
 
     res.status(200).json({ message: 'Report added successfully', appointment });
@@ -234,5 +236,44 @@ export const cancelAppointment = async (req, res) => {
     res.status(200).json({ message: 'Appointment cancelled successfully', appointment });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// export const getTodaysAppointments = async (req, res) => {
+//   console.log("Fetching today's appointments...");
+//   try {
+//       // ... (existing code)
+//   } catch (error) {
+//       console.error("Error:", error);
+//       return res.status(500).json({ message: "Error fetching today's appointments." });
+//   }
+// };
+
+export const getTodaysAppointments = async (req, res) => {
+  try {
+    // Get today's date at 00:00:00
+    const today = moment().startOf('day');
+    // Get tomorrow's date at 00:00:00
+    const tomorrow = moment(today).add(1, 'days');
+
+    // Query to find appointments between today and tomorrow
+    const appointments = await appointmentModel
+      .find({
+        date: {
+          $gte: today.toDate(),   // Greater than or equal to the start of today
+          $lt: tomorrow.toDate()  // Less than the start of tomorrow
+        }
+      })
+      .populate('doctorID', 'name specialization')
+      .populate('patientID', 'name')
+      .exec();
+
+    if (!appointments || appointments.length === 0) {
+      return res.status(404).json({ message: 'No appointments found for today' });
+    }
+
+    res.status(200).json({ appointments });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
   }
 };

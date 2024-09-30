@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import {addReportToAppointment, bookAppointment, cancelAppointment, getAllAppointments, getAppointmentDetails, getAppointmentsByPatientEmail, updateAppointmentStatus} from './appointment.controller.js'
+import {addReportToAppointment, bookAppointment, cancelAppointment, getAllAppointments, getAppointmentDetails, getAppointmentsByPatientEmail, getTodaysAppointments, updateAppointmentStatus} from './appointment.controller.js'
 const appointmentRoutes= Router()
 
 appointmentRoutes.get('/:appointmentID', getAppointmentDetails);
@@ -16,5 +16,9 @@ appointmentRoutes.get('/patient/:email', getAppointmentsByPatientEmail);
 appointmentRoutes.delete('/cancel/:appointmentID', cancelAppointment);
 
 appointmentRoutes.get('/', getAllAppointments);
+
+appointmentRoutes.get('/today', getTodaysAppointments); 
+
+
 
 export default appointmentRoutes;
