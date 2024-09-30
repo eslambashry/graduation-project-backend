@@ -14,6 +14,7 @@ import appointmentRoutes from "./src/modules/appointments/appointment.routes.js"
 import departmentRoutes from "./src/modules/departments/department.routes.js";
 import patientRoutes from "./src/modules/patient/patient.routes.js";
 import { sendSMS } from "./src/services/sendSMS.js";
+import reportRoutes from "./src/modules/report/report.routes.js";
 
 const app = express();
 const port = 5000;
@@ -32,11 +33,11 @@ app.use("/api/appointments", appointmentRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/patient", patientRoutes);
+app.use("/api/report", reportRoutes);
 
 connectionDB;
 
 // sendSMS('201110498656', 'Your appointment is tomorrow at 10 AM.');
-
 
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);

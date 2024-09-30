@@ -240,7 +240,7 @@ const updatePassword = (req, res) => {
 // Update Patient
 const updatePatient = async (req, res) => {
   const { token } = req.params;
-  const { email, name, phone ,donationAmount} = req.body;
+  const { email, name, phone, donationAmount } = req.body;
 
   jwt.verify(token, "shit", async (err, decoded) => {
     if (err) {
@@ -267,7 +267,7 @@ const updatePatient = async (req, res) => {
         amount: donationAmount,
         date: new Date(),
       };
-      
+
       // Add the donation to the patient's donations array
       foundedPatient.donations.push(newDonation);
     }
@@ -293,8 +293,7 @@ const updatePatient = async (req, res) => {
   });
 };
 
-
- const updateDonation = async (req, res) => {
+const updateDonation = async (req, res) => {
   const { token } = req.params;
   const { donationAmount } = req.body;
 
@@ -310,11 +309,11 @@ const updatePatient = async (req, res) => {
 
     if (donationAmount && donationAmount > 0) {
       const newDonation = {
-        donationID: new mongoose.Types.ObjectId(), 
+        donationID: new mongoose.Types.ObjectId(),
         amount: donationAmount,
         date: new Date(),
       };
-      foundedPatient.donations.push(newDonation); 
+      foundedPatient.donations.push(newDonation);
       await foundedPatient.save();
     } else {
       return res.status(400).json({ message: "Invalid donation amount" });
@@ -332,7 +331,7 @@ const updatePatient = async (req, res) => {
       message: "Donation updated successfully",
       token: newToken,
       data: {
-        donations: foundedPatient.donations, 
+        donations: foundedPatient.donations,
       },
     });
   });
@@ -350,5 +349,5 @@ export {
   deletePatient,
   getPatientById,
   updateAdminPatient,
-  updateDonation
+  updateDonation,
 };
