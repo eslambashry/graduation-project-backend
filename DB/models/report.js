@@ -4,7 +4,7 @@ let reportSchema = new mongoose.Schema(
   {
     appointmentId: {
       type: mongoose.Schema.ObjectId,
-      ref: "Appointments",
+      ref: "Appointment",
     },
     patientName: {
       type: String,

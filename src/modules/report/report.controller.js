@@ -31,4 +31,17 @@ let getOneReport = async (req, res) => {
     .json({ message: "report found successfully", report: report });
 };
 
-export { addReport, getReports, getOneReport };
+let getAppointmentReports = async (req, res) => {
+  let { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "invalid id" });
+  }
+
+  let reports = await reportModel
+    .find({ appointmentId: id })
+    .populate("appointmentId");
+
+  res.status(200).json({ message: "get reports successfully", reports });
+};
+
+export { addReport, getReports, getOneReport, getAppointmentReports };
