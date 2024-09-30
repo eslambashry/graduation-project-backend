@@ -196,7 +196,7 @@ export const addReportToAppointment = async (req, res) => {
     }
 
     // Add the report to the appointment
-    appointment.report = report; // Make sure to set the report field in the model
+    appointment.report = report; 
     await appointment.save();
 
     res.status(200).json({ message: "Report added successfully", appointment });
