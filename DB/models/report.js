@@ -7,10 +7,14 @@ let reportSchema = new mongoose.Schema(
       ref: "Appointment",
     },
     patientName: {
-      type: String,
+      // type: mongoose.Schema.ObjectId,
+      // ref: "Patient"
+      type:String
     },
     doctorName: {
-      type: String,
+      // type: mongoose.Schema.ObjectId,
+      // ref: "Doctor"
+      type:String
     },
     diagnosis: {
       type: String,
@@ -22,7 +26,9 @@ let reportSchema = new mongoose.Schema(
       type: String,
     },
     department: {
-      type: String,
+      // type: mongoose.Schema.ObjectId,
+      // ref:"Department"
+      type:String
     },
     patientAddress: {
       type: String,

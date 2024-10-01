@@ -15,7 +15,7 @@ doctorRoutes.post('/',multerCloudFunction(allowedExtensions.Image).single('image
 doctorRoutes.put('/:id',multerCloudFunction(allowedExtensions.Image).single('image'), updateDoctor); 
 doctorRoutes.put('/A/:id', updateDoctorAvailableDate); 
 
-doctorRoutes.delete('/:id', isAdmin, deleteDoctor); 
+doctorRoutes.delete('/:id', deleteDoctor); 
 doctorRoutes.post("/login",login)
 
 doctorRoutes.get('/appoint', getDoctorsWithAppointments);
