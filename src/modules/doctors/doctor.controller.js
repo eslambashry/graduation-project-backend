@@ -5,6 +5,7 @@ const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { departmentModel } from "../../../DB/models/department.model.js";
+import mongoose from "mongoose";
 
 export const getAllDoctors = async (req, res) => {
   try {
@@ -60,58 +61,64 @@ export const getDoctorById = async (req, res) => {
 // Create a new doctor
 export const createDoctor = async (req, res) => {
   // Extract data from the request body
-  try{
-  const { 
-      name, 
-      specialization, 
-      userName, 
-      nationalID, 
-      department, 
-      availableDates, // Ensure this is an array
-      email, 
-      phone,
-      price, 
-      password, 
-      gender, 
-      dateOfBirth, 
-      experience, 
-      history 
-  } = req.body;
-
-  const { file } = req;
-
-  // Check if the file is provided
-  if (!file) {
-      return res.status(400).json({ message: "No file uploaded." });
-  }
-
-  // Validate availableDates format
-  let parsedAvailableDates;
   try {
+    const {
+      name,
+      specialization,
+      userName,
+      nationalID,
+      department,
+      availableDates, // Ensure this is an array
+      email,
+      phone,
+      price,
+      password,
+      gender,
+      dateOfBirth,
+      experience,
+      history,
+    } = req.body;
+
+    const { file } = req;
+
+    // Check if the file is provided
+    if (!file) {
+      return res.status(400).json({ message: "No file uploaded." });
+    }
+
+    // Validate availableDates format
+    let parsedAvailableDates;
+    try {
       // Ensure availableDates is parsed as an array if it comes as a string
-      parsedAvailableDates = typeof availableDates === 'string' ? JSON.parse(availableDates) : availableDates;
+      parsedAvailableDates =
+        typeof availableDates === "string"
+          ? JSON.parse(availableDates)
+          : availableDates;
 
       // Optionally validate the structure of each date object
-      parsedAvailableDates.forEach(date => {
-          if (!date.date || !date.fromTime || !date.toTime) {
-              throw new Error("Invalid date format");
-          }
+      parsedAvailableDates.forEach((date) => {
+        if (!date.date || !date.fromTime || !date.toTime) {
+          throw new Error("Invalid date format");
+        }
       });
-  } catch (error) {
-      return res.status(400).json({ message: "Invalid availableDates format", error: error.message });
-  }
+    } catch (error) {
+      return res.status(400).json({
+        message: "Invalid availableDates format",
+        error: error.message,
+      });
+    }
 
-  // Upload the image to Cloudinary
-  const customId = nanoid();
-  const uploadResult = await cloudinary.uploader.upload(file.path, {
+    // Upload the image to Cloudinary
+    const customId = nanoid();
+    const uploadResult = await cloudinary.uploader.upload(file.path, {
       folder: `Hospital/Doctor/${customId}`, // Folder structure in Cloudinary
-  });
+    });
 
-  // Extract the Cloudinary URL and public ID
-  const { secure_url, public_id } = uploadResult;
+    // Extract the Cloudinary URL and public ID
+    const { secure_url, public_id } = uploadResult;
 
-  // Create a new doctor instance with the uploaded image URL
-  const newDoctor = new doctorModel({
+    // Create a new doctor instance with the uploaded image URL
+    const newDoctor = new doctorModel({
       name,
       specialization,
       userName,
@@ -127,29 +134,31 @@ export const createDoctor = async (req, res) => {
       experience,
       history,
       Image: {
-          secure_url, // Save Cloudinary image URL
-          public_id, // Save Cloudinary image public ID for future reference
+        secure_url, // Save Cloudinary image URL
+        public_id, // Save Cloudinary image public ID for future reference
       },
-  });
+    });
 
-  // Save the doctor to the database
-  const addedDoctor = await newDoctor.save();
+    // Save the doctor to the database
+    const addedDoctor = await newDoctor.save();
 
-  // Generate a token
-  const token = jwt.sign(
+    // Generate a token
+    const token = jwt.sign(
       { email: email, id: addedDoctor._id }, // Payload
       "Doctor", // Secret key
       { expiresIn: "1h" } // Token expiration time
-  );
+    );
 
-  // Respond with success message and doctor details
-} catch (error) {
-  // Handle any unexpected errors
-  console.error(error);
-  res.status(500).json({ message: "An error occurred while adding the doctor.", error: error.message });
-}
+    // Respond with success message and doctor details
+  } catch (error) {
+    // Handle any unexpected errors
+    console.error(error);
+    res.status(500).json({
+      message: "An error occurred while adding the doctor.",
+      error: error.message,
+    });
+  }
 };
-
 
 // Update a doctor by ID
 
@@ -158,7 +167,7 @@ export const updateDoctor = async (req, res) => {
     let { availableDates, Image } = req.body;
 
     // Check if availableDates is a string and parse it into an array
-    if (typeof availableDates === 'string') {
+    if (typeof availableDates === "string") {
       availableDates = JSON.parse(availableDates);
     }
 
@@ -177,7 +186,7 @@ export const updateDoctor = async (req, res) => {
 
       // Upload the new image to Cloudinary
       const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'doctors',
+        folder: "doctors",
       });
 
       // Update the Image object with the new Cloudinary image URL and public ID
@@ -197,17 +206,16 @@ export const updateDoctor = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json({ message: "Doctor Updated Successfully", updatedDoctor });
+    res
+      .status(200)
+      .json({ message: "Doctor Updated Successfully", updatedDoctor });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
 export const updateDoctorAvailableDate = async (req, res) => {
   try {
-
-    
     // Validate that the availableDates array exists and follows the new structure
     const { availableDates } = req.body;
 
@@ -218,12 +226,15 @@ export const updateDoctorAvailableDate = async (req, res) => {
     }
 
     // Ensure that each entry in availableDates has 'date', 'fromTime', and 'toTime'
-    const isValid = availableDates.every(dateObj => 
-      dateObj.date && dateObj.fromTime && dateObj.toTime
+    const isValid = availableDates.every(
+      (dateObj) => dateObj.date && dateObj.fromTime && dateObj.toTime
     );
 
     if (!isValid) {
-      return res.status(400).json({ message: "Each available date must have 'date', 'fromTime', and 'toTime'" });
+      return res.status(400).json({
+        message:
+          "Each available date must have 'date', 'fromTime', and 'toTime'",
+      });
     }
 
     // Find the doctor by ID and update the availableDates
@@ -239,15 +250,13 @@ export const updateDoctorAvailableDate = async (req, res) => {
 
     res.status(200).json({
       message: "Doctor Updated Successfully",
-      updatedDoctor
+      updatedDoctor,
     });
   } catch (error) {
     console.error("Error updating available dates:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-
 
 // Delete a doctor by ID
 export const deleteDoctor = async (req, res) => {
@@ -268,9 +277,7 @@ export const deleteDoctor = async (req, res) => {
 export const login = async (req, res, next) => {
   const { email, password } = req.body;
 
-
   // console.log(req.body);
-  
 
   // Check if the user exists
   const userExsist = await doctorModel.findOne({ email: email });
@@ -284,7 +291,7 @@ export const login = async (req, res, next) => {
 
   // Generate JWT token after successful login
   const token = jwt.sign(
-    { email: userExsist.email, id: userExsist._id ,role: userExsist.role}, // Use the correct references
+    { email: userExsist.email, id: userExsist._id, role: userExsist.role }, // Use the correct references
     process.env.JWT_SECRET || "Doctor", // Use environment variable for secret
     { expiresIn: "1h" } // Token expiration time
   );
@@ -297,38 +304,43 @@ export const login = async (req, res, next) => {
   });
 };
 
-
-
-
-
-
-
-
-
-
-
-
 // ! getDoctorsWithAppointments
-
 
 export const getDoctorsWithAppointments = async (req, res) => {
   try {
-    const doctors = await doctorModel.find({})
-      .populate({
-        path: 'appointments.appointID',
-        model: 'Appointment',
-        match: {
-          date: { $gte: new Date() }
-        }
-      });
+    const doctors = await doctorModel.find({}).populate({
+      path: "appointments.appointID",
+      model: "Appointment",
+      match: {
+        date: { $gte: new Date() },
+      },
+    });
 
     res.status(200).json(doctors);
   } catch (error) {
-    console.error('Error fetching doctors with appointments:', error);
-    if (error.kind === 'ObjectId') {
-      return res.status(400).json({ error: 'Invalid ObjectId format' });
+    console.error("Error fetching doctors with appointments:", error);
+    if (error.kind === "ObjectId") {
+      return res.status(400).json({ error: "Invalid ObjectId format" });
     }
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
+// get department doctors
+export const getDepartmentDoctors = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "invalid id" });
+    }
+    let doctors = await doctorModel
+      .find({ department: id })
+      .select("name")
+      .select("specialization");
+    return res
+      .status(200)
+      .json({ message: "get doctors successfully", doctors: doctors });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
