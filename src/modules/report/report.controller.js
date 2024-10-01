@@ -13,8 +13,8 @@ let addReport = async (req, res) => {
 };
 
 let getReports = async (req, res) => {
-  let reports = await reportModel.find();
-
+  let reports = await reportModel.find()
+  .populate("appointmentId");
   res.status(200).json({ message: "reports", reports: reports });
 };
 
