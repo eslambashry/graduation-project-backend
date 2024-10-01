@@ -28,4 +28,7 @@ appointmentRoutes.get("/", getAllAppointments);
 
 appointmentRoutes.get("/doctor/:token", getDoctorAppointment);
 
+
+
+
 export default appointmentRoutes;

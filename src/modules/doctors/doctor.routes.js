@@ -20,6 +20,7 @@ const doctorRoutes = Router();
 doctorRoutes.get("/", getAllDoctors);
 doctorRoutes.get("/:id", getDoctorById);
 
+
 doctorRoutes.post(
   "/",
   multerCloudFunction(allowedExtensions.Image).single("image"),
@@ -32,8 +33,8 @@ doctorRoutes.put(
 );
 doctorRoutes.put("/A/:id", updateDoctorAvailableDate);
 
-doctorRoutes.delete("/:id", isAdmin, deleteDoctor);
-doctorRoutes.post("/login", login);
+doctorRoutes.delete('/:id', deleteDoctor); 
+doctorRoutes.post("/login",login)
 
 doctorRoutes.get("/department/:id", getDepartmentDoctors);
 

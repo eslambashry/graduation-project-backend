@@ -20,7 +20,12 @@ const app = express();
 const port = 5000;
 
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*", 
+    methods: ["GET", "POST"],
+  },
+});
 
 app.use(cors());
 app.use(express.json());
@@ -46,6 +51,7 @@ io.on("connection", (socket) => {
     console.log("Client disconnected:", socket.id);
   });
 });
+
 export { io, port };
 
 server.listen(port, () => console.log(`Server running on port ${port} 🧬`));
