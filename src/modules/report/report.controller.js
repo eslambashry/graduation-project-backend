@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 import { reportModel } from "../../../DB/models/report.js";
+import { io } from "../../../app.js";
 
 let addReport = async (req, res) => {
   let report = new reportModel(req.body);
   await report.save();
+  io.emit("newReport", report);
 
   return res
     .status(200)
