@@ -54,4 +54,8 @@ io.on("connection", (socket) => {
 
 export { io, port };
 
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
 server.listen(port, () => console.log(`Server running on port ${port} 🧬`));
