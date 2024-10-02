@@ -55,7 +55,7 @@ io.on("connection", (socket) => {
 export { io, port };
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send('Back end work 😄'); 
 });
 
 server.listen(port, () => console.log(`Server running on port ${port} 🧬`));
